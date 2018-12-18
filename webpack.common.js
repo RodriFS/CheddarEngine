@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   context: path.resolve('src'),
   entry: {
-    app: './index.js'
+    cheddar: './index.js'
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
@@ -21,7 +21,10 @@ module.exports = {
     rules: [
       {
         test: /\.(gif|svg|jpg|png)$/,
-        loader: 'file-loader'
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
       }
     ]
   }
