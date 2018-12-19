@@ -1,12 +1,20 @@
 import Cheddar from '../cheddar';
 
-export default class gameScene extends Cheddar.Scene {
+export default class GameScene extends Cheddar.Scene {
+  constructor(canvas, context) {
+    super(canvas, context, { active: true });
+
+    this.player;
+  }
+
   loadAssets() {
     this.load.spritesheet('slotElements', 4, 5, 250, 250, 1);
+    // console.log(this);
   }
 
   start() {
-    const player = this.physics.add.sprite('slotElements');
+    this.player = this.physics.add.sprite('slotElements');
+    console.log(this.player);
 
     this.map.backgroundColor('lightblue');
     this.draw.donut(300, 300, 180, 0, '#AE37D9');
@@ -17,6 +25,7 @@ export default class gameScene extends Cheddar.Scene {
   }
 
   update() {
-    console.log('60fps!');
+    this.player.translate(1, 0);
+    // console.log(this.player.x);
   }
 }
