@@ -1,3 +1,5 @@
+const Anims = require('./Anims');
+
 class GameObject {
   constructor(game) {
     this.game = game;
@@ -10,6 +12,7 @@ class GameObject {
     this.center = { x: 0, y: 0, z: 0 };
     this.offset = { x: 0, y: 0 };
     this.getPosition = this.getPosition.bind(this);
+    this.anims = new Anims(game);
   }
 
   sprite(name) {
@@ -21,8 +24,10 @@ class GameObject {
     this.scale = scale;
     this.game.queue.push({
       name,
-      type: 'image',
+      type: 'sprite',
       image: new Image(),
+      row,
+      column,
       sx: 0,
       sy: 0,
       width,
@@ -35,6 +40,12 @@ class GameObject {
       scale,
       src,
       angle: 0,
+      sprite: {
+        frames: [],
+        framerate: 1,
+        repeat: true,
+        static: true
+      },
       getPosition: this.getPosition
     });
 

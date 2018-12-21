@@ -9,7 +9,6 @@ export default class GameScene extends Cheddar.Scene {
 
   loadAssets() {
     this.load.spritesheet('slotElements', 4, 5, 250, 250, 0.5);
-    // console.log(this);
   }
 
   start() {
@@ -22,12 +21,19 @@ export default class GameScene extends Cheddar.Scene {
     this.draw.donut(300, 300, 140, 20, '#7AE0C3');
     this.draw.donut(300, 300, 120, 20, '#EC5783');
     this.draw.donut(300, 300, 100, 20, '#5690DD');
+
+    this.player.anims.create({
+      AnimKey: 'left',
+      frames: [{ sprite: 'slotElements', frame: [0, 19] }], // 0 indexed
+      framerate: 2,
+      repeat: true
+    });
   }
 
   update() {
+    // this.player.anims.play();
     this.player.origin(250, 250).zindex(5);
     this.player.translate(300, 300);
     this.player.rotate(140, 0, this.player.angle + 1);
-    // console.log(this.player.angle);
   }
 }

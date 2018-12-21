@@ -2,7 +2,6 @@ const Map = require('./Map');
 const Shapes = require('./Shapes');
 const Load = require('./Load');
 const Physics = require('./Physics');
-const Anims = require('./Anims');
 
 class Scene {
   constructor(canvas, context, options) {
@@ -13,7 +12,6 @@ class Scene {
     this.draw = new Shapes(this);
     this.load = new Load(this);
     this.physics = new Physics(this);
-    this.anims = new Anims(this);
     this.queue = [];
     this.dt = 0;
     this.initializeloadAssets();
@@ -67,64 +65,102 @@ class Scene {
       .forEach(el => {
         switch (el.type) {
           case 'backgroundColor':
-            this.context.save();
-            this.context.fillStyle = el.color;
-            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.renderbackgroundColor(el);
             break;
           case 'donut':
-            this.context.save();
-            this.context.beginPath();
-            this.context.arc(
-              el.centerx,
-              el.centery,
-              el.diameter,
-              0,
-              2 * Math.PI
-            );
-            this.context.lineWidth = el.thickness;
-            this.context.strokeStyle = el.color;
-            this.context.closePath();
-            this.context.stroke();
+            this.renderDonut(el);
             break;
-          case 'image':
-            this.context.save();
-            let position = el.getPosition();
-            el.z = position.center.z;
-            if (position.angle) {
-              this.context.translate(
-                position.offset.x + position.x,
-                position.offset.y + position.y
-              );
-              this.context.rotate((position.angle * Math.PI) / 180);
-              this.context.translate(
-                -position.offset.x - position.x,
-                -position.offset.y - position.y
-              );
-            }
-            this.context.translate(
-              position.center.x * el.scale,
-              position.center.y * el.scale
-            );
-
-            this.context.drawImage(
-              el.image,
-              el.sx,
-              el.sy,
-              el.width,
-              el.height,
-              position.x,
-              position.y,
-              el.width * el.scale,
-              el.height * el.scale
-            );
-            el.image.src = el.src;
-
-            this.context.restore();
+          case 'sprite':
+            this.renderSprite(el);
             break;
           default:
             break;
         }
       });
+  }
+
+  renderbackgroundColor(el) {
+    this.context.save();
+    this.context.fillStyle = el.color;
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  renderDonut(el) {
+    this.context.save();
+    this.context.beginPath();
+    this.context.arc(el.centerx, el.centery, el.diameter, 0, 2 * Math.PI);
+    this.context.lineWidth = el.thickness;
+    this.context.strokeStyle = el.color;
+    this.context.closePath();
+    this.context.stroke();
+  }
+
+  renderSprite(el) {
+    this.context.save();
+    let position = el.getPosition();
+    el.z = position.center.z;
+    if (position.angle) {
+      this.renderRotation(position);
+    }
+    this.renderTranslation(position, el);
+
+    let spriteImages = this.getSpriteFrames(el);
+    this.context.drawImage(
+      el.image,
+      spriteImages.sx,
+      spriteImages.sy,
+      spriteImages.width,
+      spriteImages.height,
+      position.x,
+      position.y,
+      el.width * el.scale,
+      el.height * el.scale
+    );
+    el.image.src = el.src;
+
+    this.context.restore();
+  }
+
+  getSpriteFrames(el) {
+    let currentFrame = this.getCurrentFrame(el.sprite);
+
+    return {
+      sx: el.sx,
+      sy: el.sy,
+      width: el.width,
+      height: el.height
+    };
+  }
+
+  getCurrentFrame(sprite) {
+    let lastFrame = sprite.frames.length - 1;
+    let currentFrame = sprite.frames.shift();
+
+    if (sprite.repeat) {
+      sprite.frames.push(currentFrame);
+    } else {
+      sprite.frames.push(lastFrame);
+    }
+    return sprite.frames[0];
+  }
+
+  renderRotation(position) {
+    this.context.translate(
+      position.offset.x + position.x,
+      position.offset.y + position.y
+    );
+    this.context.rotate((position.angle * Math.PI) / 180);
+    this.context.translate(
+      -position.offset.x - position.x,
+      -position.offset.y - position.y
+    );
+  }
+
+  renderTranslation(position, el) {
+    this.context.translate(
+      position.center.x * el.scale,
+      position.center.y * el.scale
+    );
   }
 }
 

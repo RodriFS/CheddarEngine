@@ -13,8 +13,6 @@ class Game {
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.config.width;
     this.canvas.height = this.config.height;
-    console.log(this.canvas.style);
-
     // canvas.style.width = window.innerWidth / 2 + 'px';
     // canvas.style.height = window.innerHeight / 2 + 'px';
     document.body.appendChild(this.canvas);
