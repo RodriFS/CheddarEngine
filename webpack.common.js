@@ -14,7 +14,8 @@ module.exports = {
     })
   ],
   output: {
-    filename: '[name].bundle.js',
+    filename: 'main.js',
+    // filename: '[name].bundle.js',
     path: path.resolve('dist')
   },
   module: {
@@ -25,6 +26,10 @@ module.exports = {
         options: {
           name: '[path][name].[ext]'
         }
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
     ]
   }

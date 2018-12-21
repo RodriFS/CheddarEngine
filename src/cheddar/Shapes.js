@@ -4,12 +4,16 @@ class Shapes {
   }
 
   donut(centerx, centery, diameter, thickness, color) {
-    this.context.beginPath();
-    this.context.arc(centerx, centery, diameter, thickness, 2 * Math.PI);
-    this.context.lineWidth = 20;
-    this.context.strokeStyle = color;
-    this.context.closePath();
-    this.context.stroke();
+    this.queue.push({
+      name,
+      type: 'donut',
+      z: 0,
+      centerx,
+      centery,
+      diameter,
+      thickness,
+      color
+    });
   }
 }
 

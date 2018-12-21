@@ -5,7 +5,6 @@ class Map {
 
   backgroundColor(color) {
     this.queue.push({
-      name,
       type: 'backgroundColor',
       z: -10,
       color
