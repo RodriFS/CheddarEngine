@@ -78,8 +78,11 @@ class Scene {
           case 'donut':
             this.renderDonut(el);
             break;
+          case 'rectangle':
+            this.renderRectangle(el);
+            break;
           case 'sprite':
-            this.renderSprite(el);
+            this.renderSprite(el.render);
             break;
           default:
             break;
@@ -91,6 +94,14 @@ class Scene {
     this.context.save();
     this.context.fillStyle = el.color;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  renderRectangle(el) {
+    this.context.save();
+    this.context.strokeStyle = el.color;
+    this.context.lineWidth = el.thickness;
+    this.context.strokeRect(el.x1, el.y1, el.x2, el.y2);
+    this.context.restore();
   }
 
   renderDonut(el) {

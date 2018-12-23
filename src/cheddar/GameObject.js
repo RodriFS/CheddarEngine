@@ -14,7 +14,7 @@ class GameObject {
     this.center = { x: 0, y: 0, z: 0 };
     this.offset = { x: 0, y: 0 };
     this.getPosition = this.getPosition.bind(this);
-    this.anims = new Anims(game);
+    this.anims = new Anims(this);
     this.render;
   }
 
@@ -26,7 +26,7 @@ class GameObject {
     this.height = height;
     this.scale = scale;
 
-    let properties = {
+    this.render = {
       name,
       type: 'sprite',
       image: new Image(),
@@ -48,7 +48,7 @@ class GameObject {
       currentSprite: '',
       getPosition: this.getPosition
     };
-    this.game.queue.push(properties);
+    this.game.queue.push(this);
     return this;
   }
 

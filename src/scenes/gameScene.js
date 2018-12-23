@@ -9,92 +9,138 @@ export default class GameScene extends Cheddar.Scene {
     this.height;
     this.size;
     this.increment = 0;
+    this.reel;
+    this.scale;
   }
 
   loadAssets() {
     this.width = window.innerWidth / 2;
     this.height = window.innerHeight / 2;
-    window.innerWidth > window.innerHeight
+    this.width > this.height
       ? (this.size = window.innerHeight / 2)
       : (this.size = window.innerWidth / 2);
-    this.load.spritesheet('slotElements', 4, 5, 250, 250, this.size / 2000);
+
+    this.scale = this.size / 2800;
+    this.load.spritesheet('slotElements', 4, 5, 250, 250, this.scale);
   }
 
   start() {
-    this.player = this.physics.add.sprite('slotElements');
-    this.player2 = this.physics.add.sprite('slotElements');
-
-    let thickness = this.size / 10;
+    this.reel = this.drawReelSymbols(5, 26, 'slotElements');
+    console.log(this.reel);
 
     this.map.backgroundColor('lightblue');
-    this.draw.donut(
-      this.width,
-      this.height,
-      this.size - thickness,
-      thickness,
-      '#AE37D9'
-    );
-    this.draw.donut(
-      this.width,
-      this.height,
-      this.size - thickness * 2,
-      thickness,
-      '#F6E652'
-    );
-    this.draw.donut(
-      this.width,
-      this.height,
-      this.size - thickness * 3,
-      thickness,
-      '#7AE0C3'
-    );
-    this.draw.donut(
-      this.width,
-      this.height,
-      this.size - thickness * 4,
-      thickness,
-      '#EC5783'
-    );
-    this.draw.donut(
-      this.width,
-      this.height,
-      this.size - thickness * 5,
-      thickness,
+
+    this.drawReelBackground(this.size / 10, [
+      '#AE37D9',
+      '#F6E652',
+      '#7AE0C3',
+      '#EC5783',
       '#5690DD'
+    ]);
+
+    this.selectRandomSymbol(this.reel);
+    this.drawPayLine(
+      16,
+      this.height - 50,
+      this.size / 10,
+      this.size / 10,
+      1,
+      'black',
+      5,
+      3
     );
-
-    this.player.anims.create({
-      AnimKey: 'left',
-      frames: [{ sprite: 'slotElements', frame: 1 }], // 0 indexed
-      framerate: 10,
-      repeat: true
-    });
-
-    this.player2.anims.create({
-      AnimKey: 'left',
-      frames: [{ sprite: 'slotElements', frame: 2 }], // 0 indexed
-      framerate: 10,
-      repeat: true
-    });
-
-    console.log(this.player === this.player2);
   }
 
   update() {
-    this.player.anims.play('left');
-    this.player.origin(250, 250).zindex(5);
-    this.player.translate(
-      this.width + (Math.cos(this.increment) * this.size) / 2,
-      this.height + (Math.sin(this.increment) * this.size) / 2
-    );
+    this.moveReel(this.reel);
+    this.increment -= 0.0;
+  }
 
-    this.player2.anims.play('left');
-    this.player2.origin(250, 250).zindex(5);
-    this.player2.translate(
-      this.width + (Math.cos(this.increment) * this.size) / 3,
-      this.height + (Math.sin(this.increment) * this.size) / 3
-    );
+  drawPayLine(x1, y1, x2, y2, thickness, color, columns, rows) {
+    Array(columns)
+      .fill(0)
+      .forEach((c, i) => {
+        Array(rows)
+          .fill(0)
+          .forEach((r, j) => {
+            this.draw.rectangle(
+              x1 + 2 * x1 * i,
+              y1 + 2 * x1 * j,
+              x2,
+              y2,
+              thickness,
+              color
+            );
+          });
+      });
+  }
 
-    this.increment -= 0.01;
+  drawReelBackground(thickness, colors) {
+    Array(colors.length)
+      .fill(0)
+      .forEach((n, i) => {
+        this.draw.donut(
+          this.width,
+          this.height,
+          this.size - thickness * (i + 1),
+          thickness,
+          colors[i]
+        );
+      });
+  }
+
+  drawReelSymbols(reelsNumber, symbolPerReel, spriteName) {
+    let reelArray = [];
+    let offset = 0;
+    Array(reelsNumber)
+      .fill(0)
+      .forEach(reel => {
+        offset += 6;
+        let symbolArray = [];
+        Array(symbolPerReel + offset)
+          .fill(0)
+          .forEach(symbol => {
+            symbolArray.push(
+              this.physics.add
+                .sprite(spriteName)
+                .origin(250, 250)
+                .zindex(5)
+            );
+          });
+        reelArray.push(symbolArray);
+      });
+    return reelArray;
+  }
+
+  selectRandomSymbol(reelsArray) {
+    reelsArray.forEach(reel => {
+      reel.forEach(symbol => {
+        symbol.anims.create({
+          AnimKey: 'reel',
+          frames: [
+            { sprite: 'slotElements', frame: Math.floor(Math.random() * 20) }
+          ], // 0 indexed
+          framerate: 10,
+          repeat: true
+        });
+        symbol.anims.play('reel');
+      });
+    });
+  }
+
+  moveReel(reelsArray) {
+    let offset = 0;
+    reelsArray.forEach((reel, i) => {
+      let ring = 10 / (i + 5);
+      reel.forEach(symbol => {
+        // offset +=  //change this number for aligning in payline
+        offset += (Math.PI * 2) / reel.length;
+        let x =
+          this.width + (Math.cos(this.increment + offset) * this.size) / ring;
+        let y =
+          this.height + (Math.sin(this.increment + offset) * this.size) / ring;
+        symbol.translate(x, y);
+      });
+    });
   }
 }
