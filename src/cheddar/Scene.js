@@ -10,10 +10,10 @@ class Scene {
     this.canvas = canvas;
     this.context = context;
     this.map = new Map(this);
-    this.draw = new Shapes(this);
     this.load = new Load();
-    this.camera = new Camera();
-    this.physics = this.instance();
+    this.camera = new Camera(this);
+    this.physics = this.physics();
+    this.shapes = this.shapes();
     this.queue = [];
     this.dt = 0;
     this.initializeloadAssets();
@@ -21,7 +21,7 @@ class Scene {
     this.initializeUpdate();
   }
 
-  instance() {
+  physics() {
     let self = this;
     return {
       get add() {
@@ -29,6 +29,15 @@ class Scene {
       }
     };
   }
+  shapes() {
+    let self = this;
+    return {
+      get draw() {
+        return new Shapes(self);
+      }
+    };
+  }
+
   initializeloadAssets() {
     this.loadAssets();
   }
@@ -84,7 +93,7 @@ class Scene {
             this.renderRectangle(el);
             break;
           case 'sprite':
-            this.renderSprite(el.render);
+            this.renderSprite(el);
             break;
           default:
             break;
@@ -101,16 +110,27 @@ class Scene {
   renderRectangle(el) {
     this.context.save();
     this.context.strokeStyle = el.color;
-    this.context.lineWidth = el.thickness;
-    this.context.strokeRect(el.x1, el.y1, el.x2, el.y2);
+    this.context.lineWidth = el.thickness * this.camera.zoom;
+    this.context.strokeRect(
+      (el.x1 - this.camera.x) * this.camera.zoom,
+      (el.y1 - this.camera.y) * this.camera.zoom,
+      el.x2 * this.camera.zoom,
+      el.y2 * this.camera.zoom
+    );
     this.context.restore();
   }
 
   renderDonut(el) {
     this.context.save();
     this.context.beginPath();
-    this.context.arc(el.centerx, el.centery, el.diameter, 0, 2 * Math.PI);
-    this.context.lineWidth = el.thickness;
+    this.context.arc(
+      (el.centerx - this.camera.x) * this.camera.zoom,
+      (el.centery - this.camera.y) * this.camera.zoom,
+      el.diameter * this.camera.zoom,
+      0,
+      2 * Math.PI
+    );
+    this.context.lineWidth = el.thickness * this.camera.zoom;
     this.context.strokeStyle = el.color;
     this.context.closePath();
     this.context.stroke();
@@ -120,7 +140,7 @@ class Scene {
     this.context.save();
     let position = el.getPosition();
 
-    el.z = position.center.z;
+    el.z = position.center.z * this.camera.zoom;
     if (position.angle) {
       this.renderRotation(position);
     }
@@ -133,10 +153,10 @@ class Scene {
       spriteImages.sy,
       el.width,
       el.height,
-      position.x,
-      position.y,
-      el.width * el.scale,
-      el.height * el.scale
+      (position.x - this.camera.x) * this.camera.zoom,
+      (position.y - this.camera.y) * this.camera.zoom,
+      el.width * el.scale * this.camera.zoom,
+      el.height * el.scale * this.camera.zoom
     );
     el.image.src = el.src;
 
@@ -169,20 +189,20 @@ class Scene {
 
   renderRotation(position) {
     this.context.translate(
-      position.offset.x + position.x,
-      position.offset.y + position.y
+      position.offset.x * this.camera.zoom + position.x * this.camera.zoom,
+      position.offset.y * this.camera.zoom + position.y * this.camera.zoom
     );
     this.context.rotate((position.angle * Math.PI) / 180);
     this.context.translate(
-      -position.offset.x - position.x,
-      -position.offset.y - position.y
+      -position.offset.x * this.camera.zoom - position.x * this.camera.zoom,
+      -position.offset.y * this.camera.zoom - position.y * this.camera.zoom
     );
   }
 
   renderTranslation(position, el) {
     this.context.translate(
-      position.center.x * el.scale,
-      position.center.y * el.scale
+      position.center.x * el.scale * this.camera.zoom,
+      position.center.y * el.scale * this.camera.zoom
     );
   }
 }

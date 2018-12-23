@@ -1,14 +1,14 @@
 class Map {
-  constructor(game) {
-    this.backgroundColor = this.backgroundColor.bind(game);
+  constructor(gameScene) {
+    this.gameScene = gameScene;
+    this.type = 'backgroundColor';
+    this.z = -10;
+    this.color;
   }
 
   backgroundColor(color) {
-    this.queue.push({
-      type: 'backgroundColor',
-      z: -10,
-      color
-    });
+    this.color = color;
+    this.gameScene.queue.push(this);
   }
 }
 

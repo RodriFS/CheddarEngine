@@ -14,14 +14,14 @@ class Anims {
         sprite.framerate
       );
 
-      this.gameObject.render.sprite[sprite.AnimKey] = {
+      this.gameObject.sprite[sprite.AnimKey] = {
         frames: [...framesbyFramerate],
         framerate: sprite.framerate,
         repeat: sprite.repeat,
         static: true
       };
 
-      this.spriteQueue.push(this.gameObject.render);
+      this.spriteQueue.push(this.gameObject);
     });
   }
 

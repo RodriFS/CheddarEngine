@@ -26,7 +26,6 @@ export default class GameScene extends Cheddar.Scene {
 
   start() {
     this.reel = this.drawReelSymbols(5, 24, 'slotElements');
-    console.log(this.reel);
 
     this.map.backgroundColor('lightblue');
 
@@ -40,15 +39,18 @@ export default class GameScene extends Cheddar.Scene {
 
     this.selectRandomSymbol(this.reel);
     this.drawPayLine(
-      16,
-      this.height - 50,
+      this.width - this.size + this.size / 20,
+      this.height - (this.size * 3) / 20,
       this.size / 10,
       this.size / 10,
-      1,
+      2,
       'black',
       5,
       3
     );
+
+    //-this.size / 2
+    this.camera.position(0, 0, 1);
   }
 
   update() {
@@ -63,9 +65,9 @@ export default class GameScene extends Cheddar.Scene {
         Array(rows)
           .fill(0)
           .forEach((r, j) => {
-            this.draw.rectangle(
-              x1 + 2 * x1 * i,
-              y1 + 2 * x1 * j,
+            this.shapes.draw.rectangle(
+              x1 + x2 * i,
+              y1 + y2 * j,
               x2,
               y2,
               thickness,
@@ -79,7 +81,7 @@ export default class GameScene extends Cheddar.Scene {
     Array(colors.length)
       .fill(0)
       .forEach((n, i) => {
-        this.draw.donut(
+        this.shapes.draw.donut(
           this.width,
           this.height,
           this.size - thickness * (i + 1),

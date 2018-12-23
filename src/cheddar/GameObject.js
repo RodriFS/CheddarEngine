@@ -1,8 +1,8 @@
 const Anims = require('./Anims');
 
 class GameObject {
-  constructor(game) {
-    this.game = game;
+  constructor(gameScene) {
+    this.gameScene = gameScene;
     this.x = 0;
     this.y = 0;
     this.z = 5;
@@ -15,40 +15,36 @@ class GameObject {
     this.offset = { x: 0, y: 0 };
     this.getPosition = this.getPosition.bind(this);
     this.anims = new Anims(this);
-    this.render;
   }
 
   sprite(name) {
-    const { width, height, src, scale, row, column } = this.game.load.sprites[
-      name
-    ];
-    this.width = width;
-    this.height = height;
-    this.scale = scale;
-
-    this.render = {
-      name,
-      type: 'sprite',
-      image: new Image(),
-      row,
-      column,
-      sx: 0,
-      sy: 0,
+    const {
       width,
       height,
-      x: 0,
-      y: 0,
-      z: 0,
-      offsetx: 0,
-      offsety: 0,
-      scale,
       src,
-      angle: 0,
-      sprite: {},
-      currentSprite: '',
-      getPosition: this.getPosition
-    };
-    this.game.queue.push(this);
+      scale,
+      row,
+      column
+    } = this.gameScene.load.sprites[name];
+    this.image = new Image();
+    this.row = row;
+    this.column = column;
+    this.sx = 0;
+    this.sy = 0;
+    this.width = width;
+    this.height = height;
+    this.x = 0;
+    this.y = 0;
+    this.z = 0;
+    this.offsetx = 0;
+    this.offsety = 0;
+    this.scale = scale;
+    this.src = src;
+    this.angle = 0;
+    this.sprite = {};
+    this.currentSprite = '';
+
+    this.gameScene.queue.push(this);
     return this;
   }
 
