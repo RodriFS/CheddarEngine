@@ -2,6 +2,7 @@ const Map = require('./Map');
 const Shapes = require('./Shapes');
 const Load = require('./Load');
 const GameObject = require('./GameObject');
+const Camera = require('./Camera');
 
 class Scene {
   constructor(canvas, context, options) {
@@ -10,7 +11,8 @@ class Scene {
     this.context = context;
     this.map = new Map(this);
     this.draw = new Shapes(this);
-    this.load = new Load(this);
+    this.load = new Load();
+    this.camera = new Camera();
     this.physics = this.instance();
     this.queue = [];
     this.dt = 0;

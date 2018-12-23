@@ -25,7 +25,7 @@ export default class GameScene extends Cheddar.Scene {
   }
 
   start() {
-    this.reel = this.drawReelSymbols(5, 26, 'slotElements');
+    this.reel = this.drawReelSymbols(5, 24, 'slotElements');
     console.log(this.reel);
 
     this.map.backgroundColor('lightblue');
