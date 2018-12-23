@@ -1,7 +1,7 @@
 const Map = require('./Map');
 const Shapes = require('./Shapes');
 const Load = require('./Load');
-const Physics = require('./Physics');
+const GameObject = require('./GameObject');
 
 class Scene {
   constructor(canvas, context, options) {
@@ -11,7 +11,7 @@ class Scene {
     this.map = new Map(this);
     this.draw = new Shapes(this);
     this.load = new Load(this);
-    this.physics = new Physics(this);
+    this.physics = this.instance();
     this.queue = [];
     this.dt = 0;
     this.initializeloadAssets();
@@ -19,14 +19,22 @@ class Scene {
     this.initializeUpdate();
   }
 
+  instance() {
+    let self = this;
+    return {
+      get add() {
+        return new GameObject(self);
+      }
+    };
+  }
   initializeloadAssets() {
     this.loadAssets();
   }
 
   initializeStarter() {
-    // this.context.globalCompositeOperation = 'destination-over';
     this.start();
   }
+
   initializeUpdate() {
     const requestAnimFrame = (function() {
       return (
@@ -98,6 +106,7 @@ class Scene {
   renderSprite(el) {
     this.context.save();
     let position = el.getPosition();
+
     el.z = position.center.z;
     if (position.angle) {
       this.renderRotation(position);
@@ -109,8 +118,8 @@ class Scene {
       el.image,
       spriteImages.sx,
       spriteImages.sy,
-      spriteImages.width,
-      spriteImages.height,
+      el.width,
+      el.height,
       position.x,
       position.y,
       el.width * el.scale,
@@ -122,13 +131,14 @@ class Scene {
   }
 
   getSpriteFrames(el) {
-    let currentFrame = this.getCurrentFrame(el.sprite);
-
+    let currentFrame = el.currentSprite.length
+      ? this.getCurrentFrame(el.sprite[el.currentSprite])
+      : 0;
+    let row = Math.trunc((currentFrame + 1) / el.column - 0.01);
+    let column = currentFrame % el.column;
     return {
-      sx: el.sx,
-      sy: el.sy,
-      width: el.width,
-      height: el.height
+      sx: el.sx + column * el.width,
+      sy: el.sy + row * el.height
     };
   }
 

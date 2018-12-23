@@ -2,7 +2,11 @@ const GameObject = require('./GameObject');
 
 class Physics {
   constructor(game) {
-    this.add = new GameObject(game);
+    this.add = {
+      get add() {
+        return new GameObject(game);
+      }
+    };
   }
 }
 

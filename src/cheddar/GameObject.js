@@ -5,6 +5,8 @@ class GameObject {
     this.game = game;
     this.x = 0;
     this.y = 0;
+    this.z = 5;
+    this.type = 'sprite';
     this.width = 0;
     this.height = 0;
     this.scale;
@@ -13,6 +15,7 @@ class GameObject {
     this.offset = { x: 0, y: 0 };
     this.getPosition = this.getPosition.bind(this);
     this.anims = new Anims(game);
+    this.render;
   }
 
   sprite(name) {
@@ -22,7 +25,8 @@ class GameObject {
     this.width = width;
     this.height = height;
     this.scale = scale;
-    this.game.queue.push({
+
+    let properties = {
       name,
       type: 'sprite',
       image: new Image(),
@@ -40,15 +44,11 @@ class GameObject {
       scale,
       src,
       angle: 0,
-      sprite: {
-        frames: [],
-        framerate: 1,
-        repeat: true,
-        static: true
-      },
+      sprite: {},
+      currentSprite: '',
       getPosition: this.getPosition
-    });
-
+    };
+    this.game.queue.push(properties);
     return this;
   }
 

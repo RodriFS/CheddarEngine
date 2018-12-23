@@ -8,9 +8,12 @@ class Anims {
 
   create(sprite) {
     sprite.frames.forEach(frames => {
+      console.log(this.game.queue);
+
       let el = this.game.queue.find(
-        spr => spr.name === frames.sprite && !this.spriteQueue.includes(spr)
+        spr => spr.name === frames.sprite // && !this.spriteQueue.includes(spr)
       );
+
       if (el) {
         let totalFrames = utils.range(frames.frame, sprite.framerate);
         let framesbyFramerate = utils.multiplyByFramerate(
@@ -18,27 +21,38 @@ class Anims {
           sprite.framerate
         );
 
-        el.sprite = {
-          name: sprite.AnimKey,
-          frames: [...el.sprite.frames, ...framesbyFramerate],
+        // if (el.sprite[sprite.AnimKey]) {
+        //   el.sprite[sprite.AnimKey] = {
+        //     frames: [...el.sprite[sprite.AnimKey].frames, ...framesbyFramerate],
+        //     framerate: sprite.framerate,
+        //     repeat: sprite.repeat,
+        //     static: true
+        //   };
+        // } else {
+        console.log(this);
+
+        el.sprite[sprite.AnimKey] = {
+          frames: [...framesbyFramerate],
           framerate: sprite.framerate,
           repeat: sprite.repeat,
           static: true
+          // };
         };
+
         this.spriteQueue.push(el);
       }
     });
   }
 
-  play() {
+  play(name) {
     this.spriteQueue.forEach(frames => {
-      frames.sprite.static = false;
+      frames.currentSprite = name;
     });
   }
 
   stop() {
     this.spriteQueue.forEach(frames => {
-      frames.sprite.static = true;
+      frames.currentSprite = '';
     });
   }
 }
