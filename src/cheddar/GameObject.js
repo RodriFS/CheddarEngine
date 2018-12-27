@@ -15,6 +15,9 @@ class GameObject {
     this.offset = { x: 0, y: 0 };
     this.getPosition = this.getPosition.bind(this);
     this.anims = new Anims(this);
+    this.mouseover = null;
+    this.border = false;
+    this.isDirty = false;
   }
 
   sprite(name) {
@@ -43,15 +46,22 @@ class GameObject {
     this.angle = 0;
     this.sprite = {};
     this.currentSprite = '';
-
+    this.border = false;
+    this.isDirty = true;
     this.gameScene.queue.push(this);
     return this;
   }
 
   getPosition() {
     return {
-      x: this.x,
-      y: this.y,
+      x:
+        (this.x + this.center.x * this.scale - this.gameScene.camera.x) *
+        this.gameScene.camera.zoom,
+      y:
+        (this.y + this.center.y * this.scale - this.gameScene.camera.y) *
+        this.gameScene.camera.zoom,
+      width: this.width * this.scale * this.gameScene.camera.zoom,
+      height: this.height * this.scale * this.gameScene.camera.zoom,
       angle: this.angle,
       center: this.center,
       offset: this.offset
@@ -61,6 +71,7 @@ class GameObject {
   translate(x, y) {
     this.x = x;
     this.y = y;
+    this.isDirty = true;
     return this;
   }
 
@@ -68,17 +79,26 @@ class GameObject {
     this.center.x = this.center.x + offsetx / this.scale;
     this.center.y = this.center.y + offsety / this.scale;
     this.angle = angle;
+    this.isDirty = true;
     return this;
   }
 
   origin(x, y) {
-    this.center.x = -x / 2;
-    this.center.y = -y / 2;
+    this.center.x = -x;
+    this.center.y = -y;
+    this.isDirty = true;
     return this;
   }
 
   zindex(z) {
     this.center.z = z;
+    this.isDirty = true;
+    return this;
+  }
+
+  setScale(s) {
+    this.scale = this.scale * s;
+    this.isDirty = true;
     return this;
   }
 }

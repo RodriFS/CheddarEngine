@@ -3,6 +3,7 @@ const Shapes = require('./Shapes');
 const Load = require('./Load');
 const GameObject = require('./GameObject');
 const Camera = require('./Camera');
+const Input = require('./Input');
 
 class Scene {
   constructor(canvas, context, options) {
@@ -12,10 +13,14 @@ class Scene {
     this.map = new Map(this);
     this.load = new Load();
     this.camera = new Camera(this);
+    this.input = new Input(this);
     this.physics = this.physics();
     this.shapes = this.shapes();
     this.queue = [];
     this.dt = 0;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.mouseCoordinatesEvent();
     this.initializeloadAssets();
     this.initializeStarter();
     this.initializeUpdate();
@@ -36,6 +41,18 @@ class Scene {
         return new Shapes(self);
       }
     };
+  }
+
+  mouseCoordinatesEvent() {
+    let canvasPos = this.canvas.getBoundingClientRect();
+    this.canvas.addEventListener(
+      'mousemove',
+      event => {
+        this.mouseX = event.clientX - canvasPos.left;
+        this.mouseY = event.clientY - canvasPos.top;
+      },
+      false
+    );
   }
 
   initializeloadAssets() {
@@ -78,7 +95,8 @@ class Scene {
   }
 
   render() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.save();
     this.queue
       .sort((a, b) => a.z - b.z)
       .forEach(el => {
@@ -99,16 +117,15 @@ class Scene {
             break;
         }
       });
+    this.context.restore();
   }
 
   renderbackgroundColor(el) {
-    this.context.save();
     this.context.fillStyle = el.color;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   renderRectangle(el) {
-    this.context.save();
     this.context.strokeStyle = el.color;
     this.context.lineWidth = el.thickness * this.camera.zoom;
     this.context.strokeRect(
@@ -117,11 +134,9 @@ class Scene {
       el.x2 * this.camera.zoom,
       el.y2 * this.camera.zoom
     );
-    this.context.restore();
   }
 
   renderDonut(el) {
-    this.context.save();
     this.context.beginPath();
     this.context.arc(
       (el.centerx - this.camera.x) * this.camera.zoom,
@@ -140,11 +155,11 @@ class Scene {
     this.context.save();
     let position = el.getPosition();
 
-    el.z = position.center.z * this.camera.zoom;
+    el.z = position.center.z;
     if (position.angle) {
       this.renderRotation(position);
     }
-    this.renderTranslation(position, el);
+    // this.renderTranslation(position, el);
 
     let spriteImages = this.getSpriteFrames(el);
     this.context.drawImage(
@@ -153,12 +168,23 @@ class Scene {
       spriteImages.sy,
       el.width,
       el.height,
-      (position.x - this.camera.x) * this.camera.zoom,
-      (position.y - this.camera.y) * this.camera.zoom,
-      el.width * el.scale * this.camera.zoom,
-      el.height * el.scale * this.camera.zoom
+      position.x,
+      position.y,
+      position.width,
+      position.height
     );
     el.image.src = el.src;
+
+    if (el.border) {
+      this.context.strokeStyle = 'black';
+      this.context.lineWidth = 1;
+      this.context.strokeRect(
+        position.x,
+        position.y,
+        position.width,
+        position.height
+      );
+    }
 
     this.context.restore();
   }

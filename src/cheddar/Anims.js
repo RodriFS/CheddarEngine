@@ -20,7 +20,7 @@ class Anims {
         repeat: sprite.repeat,
         static: true
       };
-
+      this.gameObject.isDirty = true;
       this.spriteQueue.push(this.gameObject);
     });
   }

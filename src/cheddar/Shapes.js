@@ -12,6 +12,7 @@ class Shapes {
     this.y1 = 0;
     this.x2 = 0;
     this.y2 = 0;
+    this.isDirty = false;
   }
 
   donut(centerx, centery, diameter, thickness, color) {
@@ -21,7 +22,7 @@ class Shapes {
     this.diameter = diameter;
     this.thickness = thickness;
     this.color = color;
-
+    this.isDirty = true;
     this.gameScene.queue.push(this);
     return this;
   }
@@ -34,13 +35,14 @@ class Shapes {
     this.y2 = y2;
     this.thickness = thickness;
     this.color = color;
-
+    this.isDirty = true;
     this.gameScene.queue.push(this);
     return this;
   }
 
   zindex(z) {
     this.z = z;
+    this.isDirty = true;
     return this;
   }
 }
