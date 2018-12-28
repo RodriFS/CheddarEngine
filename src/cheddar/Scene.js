@@ -95,10 +95,12 @@ class Scene {
   }
 
   render() {
-    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.save();
+    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     this.queue
       .sort((a, b) => a.z - b.z)
+      // .filter(el => el.isDirty)
       .forEach(el => {
         switch (el.type) {
           case 'backgroundColor':
@@ -116,6 +118,7 @@ class Scene {
           default:
             break;
         }
+        // el.isDirty = false;
       });
     this.context.restore();
   }
@@ -186,7 +189,7 @@ class Scene {
       );
     }
 
-    this.context.restore();
+    // this.context.restore();
   }
 
   getSpriteFrames(el) {
