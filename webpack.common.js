@@ -21,7 +21,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(gif|svg|jpg|png)$/,
+        test: /\.(gif|svg|jpg|png|wav|mp3)$/,
+        // include: SRC,
         loader: 'file-loader',
         options: {
           name: '[path][name].[ext]'

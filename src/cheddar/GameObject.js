@@ -1,5 +1,6 @@
 const Anims = require('./Anims');
 
+// this class controls every instance of gameObject created
 class GameObject {
   constructor(gameScene) {
     this.gameScene = gameScene;
@@ -18,8 +19,10 @@ class GameObject {
     this.mouseover = null;
     this.border = false;
     this.isDirty = false;
+    this.hidden;
   }
 
+  // creates a sprite with generic data and pushes the sprite into the rendering queue
   sprite(name) {
     const {
       width,
@@ -48,10 +51,12 @@ class GameObject {
     this.currentSprite = '';
     this.border = false;
     this.isDirty = true;
+    this.hidden = false;
     this.gameScene.queue.push(this);
     return this;
   }
 
+  // gets information on the current gameObject instance
   getPosition() {
     return {
       x:
@@ -68,6 +73,7 @@ class GameObject {
     };
   }
 
+  // moves the gameObject
   translate(x, y) {
     this.x = x;
     this.y = y;
@@ -75,6 +81,7 @@ class GameObject {
     return this;
   }
 
+  // rotates the gameObject
   rotate(offsetx, offsety, angle) {
     this.center.x = this.center.x + offsetx / this.scale;
     this.center.y = this.center.y + offsety / this.scale;
@@ -83,6 +90,8 @@ class GameObject {
     return this;
   }
 
+  // offsets the origin of the sprite so you can put it
+  // on the center or the end of the sprite
   origin(x, y) {
     this.center.x = -x;
     this.center.y = -y;
@@ -90,16 +99,29 @@ class GameObject {
     return this;
   }
 
+  // changes the z-indez of the object so it can be render
+  // in the front or behind others
   zindex(z) {
     this.center.z = z;
     this.isDirty = true;
     return this;
   }
 
+  // changes scale of sprite
   setScale(s) {
     this.scale = this.scale * s;
     this.isDirty = true;
     return this;
+  }
+
+  // prevents rendering of sprite
+  hide() {
+    this.hidden = true;
+  }
+
+  // allows rendering of sprite
+  show() {
+    this.hidden = false;
   }
 }
 

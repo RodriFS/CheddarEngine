@@ -1,8 +1,10 @@
+// this class controls user input
 class Input {
   constructor(gameScene) {
     this.gameScene = gameScene;
   }
 
+  // checks if mouse is over gameObject
   mouseover(gameObject) {
     let { x, y, width, height } = gameObject.getPosition();
     let minX = x;
@@ -16,8 +18,6 @@ class Input {
       this.gameScene.mouseY > minY &&
       this.gameScene.mouseY < maxY
     ) {
-      // console.log('yes');
-
       gameObject.mouseover = true;
       return true;
     } else {
@@ -25,6 +25,8 @@ class Input {
     }
   }
 
+  // adds an event listener and sets a callback. You can pass the
+  // gameObject as the border of the action
   on(action, cb, gameObject) {
     let canvas = this.gameScene.canvas;
     switch (action) {
@@ -32,7 +34,11 @@ class Input {
         canvas.addEventListener(
           'click',
           () => {
-            if (this.mouseover(gameObject)) cb();
+            if (gameObject && this.mouseover(gameObject)) {
+              cb();
+            } else if (!gameObject) {
+              cb();
+            }
           },
           false
         );

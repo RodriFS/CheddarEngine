@@ -1,3 +1,4 @@
+// this class controls the camera
 class Camera {
   constructor(gameScene) {
     this.gameScene = gameScene;
@@ -6,6 +7,7 @@ class Camera {
     this.zoom = 1;
   }
 
+  //changes the position and zoom of the "camera" by moving everything
   position(x, y, zoom) {
     let width = this.gameScene.canvas.width / 2;
     let height = this.gameScene.canvas.height / 2;

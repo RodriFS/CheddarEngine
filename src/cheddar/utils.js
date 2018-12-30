@@ -1,4 +1,7 @@
-function range(array, framerate) {
+// this function creates an array of numbers from an array with two points
+// for example, input is [1,4], output is [1,2,3,4]
+// if instead of an array, the input is a number => input: 1, output: [1]
+function range(array) {
   let totalFrames = [];
   if (Array.isArray(array)) {
     totalFrames = [...Array(array[1] + 1).keys()].filter((n, i) => {
@@ -10,6 +13,8 @@ function range(array, framerate) {
   return totalFrames;
 }
 
+// multiplies an array by a framerate
+// input: [2,3,4,5], 2 => output: [2,2,3,3,4,4,5,5]
 function multiplyByFramerate(array, framerate) {
   frames = [];
   array.map(el => {

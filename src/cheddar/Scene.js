@@ -4,18 +4,24 @@ const Load = require('./Load');
 const GameObject = require('./GameObject');
 const Camera = require('./Camera');
 const Input = require('./Input');
+const Audio = require('./Audio');
+const Text = require('./Text');
 
+// this class renders the whole scene
 class Scene {
-  constructor(canvas, context, options) {
+  constructor(canvas, context, events, options) {
     this.active = options.active;
     this.canvas = canvas;
     this.context = context;
+    this.events = events;
     this.map = new Map(this);
     this.load = new Load();
+    this.audio = new Audio(this);
     this.camera = new Camera(this);
     this.input = new Input(this);
     this.physics = this.physics();
     this.shapes = this.shapes();
+    this.text = this.text();
     this.queue = [];
     this.dt = 0;
     this.mouseX = 0;
@@ -26,6 +32,7 @@ class Scene {
     this.initializeUpdate();
   }
 
+  // gets a new instance of GameObject
   physics() {
     let self = this;
     return {
@@ -34,6 +41,8 @@ class Scene {
       }
     };
   }
+
+  // gets a new instance of a Shape
   shapes() {
     let self = this;
     return {
@@ -43,6 +52,17 @@ class Scene {
     };
   }
 
+  // gets a new instance of a Text
+  text() {
+    let self = this;
+    return {
+      get write() {
+        return new Text(self);
+      }
+    };
+  }
+
+  // listens to every mouse movement
   mouseCoordinatesEvent() {
     let canvasPos = this.canvas.getBoundingClientRect();
     this.canvas.addEventListener(
@@ -55,14 +75,20 @@ class Scene {
     );
   }
 
+  // initializes the loadAssets method. the order of the next
+  // three functions prevents that the user calls the methods
+  // in a different order in his gameScenes
   initializeloadAssets() {
     this.loadAssets();
   }
 
+  //this is for creating assets after loading them in memory in the
+  // previous function
   initializeStarter() {
     this.start();
   }
 
+  // controls frame speed and calls render method
   initializeUpdate() {
     const requestAnimFrame = (function() {
       return (
@@ -94,13 +120,13 @@ class Scene {
     main();
   }
 
+  // renders every object in rendering queue
   render() {
     this.context.save();
-    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.queue
       .sort((a, b) => a.z - b.z)
-      // .filter(el => el.isDirty)
+      .filter(el => !el.hidden)
       .forEach(el => {
         switch (el.type) {
           case 'backgroundColor':
@@ -115,30 +141,45 @@ class Scene {
           case 'sprite':
             this.renderSprite(el);
             break;
+          case 'text':
+            this.renderText(el);
+            break;
           default:
             break;
         }
-        // el.isDirty = false;
       });
     this.context.restore();
   }
 
+  // renders background color
   renderbackgroundColor(el) {
     this.context.fillStyle = el.color;
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
+  // renders a canvas rectangle
   renderRectangle(el) {
-    this.context.strokeStyle = el.color;
-    this.context.lineWidth = el.thickness * this.camera.zoom;
-    this.context.strokeRect(
-      (el.x1 - this.camera.x) * this.camera.zoom,
-      (el.y1 - this.camera.y) * this.camera.zoom,
-      el.x2 * this.camera.zoom,
-      el.y2 * this.camera.zoom
-    );
+    if (el.thickness === false) {
+      this.context.fillStyle = el.color;
+      this.context.fillRect(
+        (el.x1 - this.camera.x) * this.camera.zoom,
+        (el.y1 - this.camera.y) * this.camera.zoom,
+        el.x2 * this.camera.zoom,
+        el.y2 * this.camera.zoom
+      );
+    } else {
+      this.context.strokeStyle = el.color;
+      this.context.lineWidth = el.thickness * this.camera.zoom;
+      this.context.strokeRect(
+        (el.x1 - this.camera.x) * this.camera.zoom,
+        (el.y1 - this.camera.y) * this.camera.zoom,
+        el.x2 * this.camera.zoom,
+        el.y2 * this.camera.zoom
+      );
+    }
   }
 
+  // renders a canvas donuts
   renderDonut(el) {
     this.context.beginPath();
     this.context.arc(
@@ -154,6 +195,7 @@ class Scene {
     this.context.stroke();
   }
 
+  // renders a canvas image
   renderSprite(el) {
     this.context.save();
     let position = el.getPosition();
@@ -188,10 +230,20 @@ class Scene {
         position.height
       );
     }
-
-    // this.context.restore();
   }
 
+  // render a canvas text
+  renderText(el) {
+    this.context.font = el.font;
+    this.context.fillStyle = el.color;
+    this.context.textBaseline = el.textBaseline;
+    this.context.direction = el.direction;
+    this.context.textAlign = el.textAlign;
+    this.context.fillText(el.text, el.x, el.y, el.maxWidth);
+  }
+
+  // gets the position of current image that has to render in the current frame
+  // if there is no current sprite, it renders the first sprite
   getSpriteFrames(el) {
     let currentFrame = el.currentSprite.length
       ? this.getCurrentFrame(el.sprite[el.currentSprite])
@@ -204,6 +256,7 @@ class Scene {
     };
   }
 
+  // gets the current frame and pushes the last frame to the end of the frame queue
   getCurrentFrame(sprite) {
     let lastFrame = sprite.frames.length - 1;
     let currentFrame = sprite.frames.shift();
@@ -216,6 +269,7 @@ class Scene {
     return sprite.frames[0];
   }
 
+  // renders rotation of sprites
   renderRotation(position) {
     this.context.translate(
       position.offset.x * this.camera.zoom + position.x * this.camera.zoom,
@@ -228,6 +282,7 @@ class Scene {
     );
   }
 
+  // renders movement of sprites
   renderTranslation(position, el) {
     this.context.translate(
       position.center.x * el.scale * this.camera.zoom,
